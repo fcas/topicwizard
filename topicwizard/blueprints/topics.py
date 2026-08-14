@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import dash_mantine_components as dmc
 import numpy as np
@@ -49,17 +49,22 @@ def create_blueprint(
     document_topic_matrix: np.ndarray,
     topic_term_matrix: np.ndarray,
     topic_names: List[str],
+    topic_positions: Optional[np.ndarray] = None,
+    wordcloud_font_path: Optional[str] = None,
     **kwargs,
 ) -> DashBlueprint:
     # --------[ Preparing data ]--------
-    topic_positions = prepare.topic_positions(topic_term_matrix)
+    if topic_positions is None:
+        topic_positions = prepare.topic_positions(topic_term_matrix)
     topic_importances = document_topic_matrix.sum(axis=0)
     # --------[ Collecting blueprints ]--------
     intertopic_map = create_intertopic_map(
         topic_positions, topic_importances, topic_names
     )
     topic_barplot = create_topic_barplot(topic_term_matrix, vocab)
-    wordcloud = create_wordcloud(topic_term_matrix, vocab)
+    wordcloud = create_wordcloud(
+        topic_term_matrix, vocab, wordcloud_font_path=wordcloud_font_path
+    )
     blueprints = [
         intertopic_map,
         topic_switcher,

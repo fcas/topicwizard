@@ -1,4 +1,5 @@
 """Module containing plotting utilities for topics."""
+
 from typing import List
 
 import numpy as np
@@ -8,6 +9,8 @@ import plotly.graph_objects as go
 from PIL import Image
 from sklearn.preprocessing import minmax_scale
 from wordcloud import WordCloud
+
+from topicwizard.plots.utils import get_default_font_path
 
 
 def intertopic_map(
@@ -139,7 +142,9 @@ def topic_plot(top_words: pd.DataFrame):
     return fig
 
 
-def wordcloud(top_words: pd.DataFrame) -> go.Figure:
+def wordcloud(
+    top_words: pd.DataFrame, color_scheme: str = "copper", custom_font_path=None
+) -> go.Figure:
     """Plots most relevant words for current topic as a worcloud."""
     top_dict = {
         word: importance
@@ -147,11 +152,13 @@ def wordcloud(top_words: pd.DataFrame) -> go.Figure:
             top_words.word, 0.1 + minmax_scale(top_words.importance)
         )
     }
+    font_path = custom_font_path or get_default_font_path().absolute()
     cloud = WordCloud(
+        font_path=font_path,
         width=800,
         height=1060,
         background_color="white",
-        colormap="copper",
+        colormap=color_scheme,
         scale=4,
     ).generate_from_frequencies(top_dict)
     image = cloud.to_image()
